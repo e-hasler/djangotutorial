@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8" />
+        <title> Detail of {{ question }} </title>
+    </head>
+    <body>
+        <h1> {{ question.question_text }}</h1>
+        <ul>
+            { % for choice in question.choice_set.all % }
+            <!--Where is choice_set defined?-->
+            <!--Note: In for loops no {{ }} around variables -->
+
+            <li>
+                {{choice.choice_text}}
+            </li>
+            { % endfor % }
+        </ul>
+
+    </body>
+</html>

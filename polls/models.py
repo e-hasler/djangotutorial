@@ -1,3 +1,7 @@
+"""
+A model is like a type of elements on a page.
+"""
+
 import datetime
 
 from django.db import models
