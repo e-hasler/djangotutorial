@@ -5,6 +5,7 @@ We associate each view (i.e. page) with a URL
 from django.urls import path
 from . import views
 
+app_name = "polls" # Add if several apps in the project
 urlpatterns = [
     path("", views.index, name="index"),
     path("specifics/<int:question_id>", views.detail, name="detail"),
