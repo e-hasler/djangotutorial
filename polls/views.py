@@ -1,4 +1,5 @@
 """
+views.py
 The views are the different types of pages
 """
 
