@@ -126,3 +126,18 @@ class QuestionDetailViewTests(TestCase):
         url = reverse("polls:detail", args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+
+# User authentification
+
+"""
+Do this once my website supports account creation
+
+def create_user():
+
+def test_user_access()
+    #Tests that an existing user can access the polls/ app
+
+def test_incognito_access():
+    #Tests that we can't access views without being authentificated first
+
+"""

@@ -3,16 +3,33 @@ views.py
 The views are the different types of pages
 """
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from .models import Choice, Question
 
-class IndexView(generic.ListView):
+class LoginView(generic.TemplateView):
+    template_name = "polls/login.html"
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("polls:index")
+        else:
+            return self.render_to_response({"error": "Invalid credentials"})
+        
+class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
 
@@ -21,7 +38,7 @@ class IndexView(generic.ListView):
         questions = Question.objects.filter(pub_date__lte=timezone.now())
         return questions.order_by("-pub_date")[:5]
 
-class DetailView(generic.DetailView):
+class DetailView(LoginRequiredMixin, generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
 
@@ -31,10 +48,11 @@ class DetailView(generic.DetailView):
         """
         return Question.objects.filter(pub_date__lte=timezone.now())
     
-class ResultsView(generic.DetailView):
+class ResultsView(LoginRequiredMixin, generic.DetailView):
     model = Question
     template_name = "polls/results.html"
 
+@login_required(login_url="polls:login")
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
