@@ -22,10 +22,13 @@ class LoginView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         username = request.POST["username"]
         password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password) # checks that the user can indeed login
+        # it checks that the username is in my User table
+        # it compares the hash password against the hash stored
+        # if it matches, it returns a User object
         if user is not None:
-            login(request, user)
-            return redirect("polls:index")
+            login(request, user) # writes the user's ID into the session, and Django sets a sessionid cookie in the browser's response
+            return redirect("polls:index") # if yes it redirects to the index page
         else:
             return self.render_to_response({"error": "Invalid credentials"})
         
