@@ -1,11 +1,11 @@
 import datetime
 
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import Question
-
 
 class QuestionModelTests(TestCase):
     def test_was_published_recently_with_future_question(self):
@@ -48,10 +48,18 @@ def create_question(question_text, days):
 
 
 class QuestionIndexViewTests(TestCase):
+
+
+    # Always login first, runs before each test
+    def setUp(self):
+        self.user = User.objects.create_user(username="alice", password="secret123")
+        self.client.force_login(self.user)
+
     def test_no_questions(self):
         """
         If no questions exist, an appropriate message is displayed.
         """
+        # Check no question behavior
         response = self.client.get(reverse("polls:index"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No polls are available.")
@@ -107,6 +115,12 @@ class QuestionIndexViewTests(TestCase):
 # Tests that the detail view of a question with a pub_date in the future returns a 404 not found
 
 class QuestionDetailViewTests(TestCase):
+
+    # Always login first, runs before each test
+    def setUp(self):
+        self.user = User.objects.create_user(username="alice", password="secret123")
+        self.client.force_login(self.user)
+        
     def test_future_question(self):
         """
         The detail view of a question with a pub_date in the future
@@ -141,3 +155,36 @@ def test_incognito_access():
     #Tests that we can't access views without being authentificated first
 
 """
+
+# Login test
+
+class LoginViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alice", password="secret123")
+
+    def test_login_with_correct_credentials_redirects(self):
+        response = self.client.post(reverse("polls:login"), {
+            "username": "alice",
+            "password": "secret123",
+        })
+        self.assertRedirects(response, reverse("polls:index"))
+
+    def test_login_with_wrong_password_shows_error(self):
+        response = self.client.post(reverse("polls:login"), {
+            "username": "alice",
+            "password": "wrongpassword",
+        })
+        self.assertContains(response, "Invalid credentials")
+
+# Logout test
+
+class LogoutViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="alice", password="secret123")
+
+    def test_logout(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("polls:logout"))
+        # check that the user is logged out by checking the session
+        self.assertNotIn("_auth_user_id", self.client.session)
+

@@ -3,8 +3,9 @@ views.py
 The views are the different types of pages
 """
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db.models import F
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,7 +32,15 @@ class LoginView(generic.TemplateView):
             return redirect("polls:index") # if yes it redirects to the index page
         else:
             return self.render_to_response({"error": "Invalid credentials"})
-        
+
+
+# class LogoutView(generic.TemplateView):
+#     template_name = "polls/logout.html"
+#     def post(self, request, *args, **kwargs):
+#         logout(request) # logout flushes the session 
+#         return self.render(request, self.template_name, {"message": "You have been logged out."})
+    
+    
 class IndexView(LoginRequiredMixin, generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
@@ -77,3 +86,23 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+
+def logout_view(request):
+    logout(request)
+    return render(request, "polls/logout.html")
+
+# function to create a new account
+def create_account(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        # check if the username already exists
+        if User.objects.filter(username=username).exists():
+            return render(request, "polls/create_account.html", {"error": "Username already exists"})
+        else:
+            user = User.objects.create_user(username=username, password=password)
+            login(request, user)
+            return redirect("polls:index")
+    else:
+        return render(request, "polls/create_account.html")

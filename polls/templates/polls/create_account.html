@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Create Account</title>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1>Create Account</h1>
     <form method="post">
         {% csrf_token %}
         <input type="text" name="username" placeholder="Username">
         <input type="password" name="password" placeholder="Password">
-        <button type="submit">Log in</button>
+        <button type="submit">Create Account</button>
         {% if error %}<p>{{ error }}</p>{% endif %}
     </form>
-    <p>Don't have an account? <a href="{% url 'polls:create_account' %}">Create one</a></p>
 </body>
 </html>
